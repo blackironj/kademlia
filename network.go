@@ -11,19 +11,19 @@ const (
 	ParalelismAlpha = 3
 )
 
-type kademliaServer struct {
+type kademliaNet struct {
 	table *RoutingTable
 }
 
-func NewKademliaServer(routingTable *RoutingTable) *kademliaServer {
-	ks := &kademliaServer{
+func NewKademliaNet(routingTable *RoutingTable) *kademliaNet {
+	ks := &kademliaNet{
 		table : routingTable,
 	}
 	return ks
 }
 
 // `FIND NODE` RPC
-func (s *kademliaServer) FindNode(ctx context.Context, target *Target) (*Neighbors, error) {
+func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Neighbors, error) {
 	hashedTargetID := ConvertPeerID(target.GetTargetId())
 
 	senderID := target.GetSenderId()
@@ -53,7 +53,7 @@ func (s *kademliaServer) FindNode(ctx context.Context, target *Target) (*Neighbo
 	}, nil
 }
 
-func (s *kademliaServer) Start(kadPort string){
+func (s *kademliaNet) Start(kadPort string){
 	lis, err := net.Listen("tcp", ":"+kadPort)
 	if err != nil {
 		log.Fatal(err)
