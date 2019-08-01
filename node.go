@@ -19,7 +19,6 @@ type Node struct {
 
 	Conn *grpc.ClientConn
 
-	FailedReqCount     int32
 	FailedTryConnCount int32
 }
 
@@ -29,7 +28,6 @@ func NewNode(id string, ip string, kadPort string, servPort string) Node {
 		IP:                 ip,
 		KademliaPort:       kadPort,
 		ServicePort:        servPort,
-		FailedReqCount:     0,
 		FailedTryConnCount: 0,
 	}
 	n.HashedID = ConvertPeerID(n.ID)

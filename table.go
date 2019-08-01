@@ -113,6 +113,12 @@ func (rt *RoutingTable) Remove(n Node) {
 	}
 }
 
+func (rt *RoutingTable) RemoveDeadNodes() {
+	for _, bucket := range rt.Buckets {
+		bucket.RemoveDeadNodes()
+	}
+}
+
 func (rt *RoutingTable) nextBucket() {
 	// This is the last bucket, which allegedly is a mixed bag containing peers not belonging in dedicated (unfolded) buckets.
 	// _allegedly_ is used here to denote that *all* peers in the last bucket might feasibly belong to another bucket.
