@@ -2,10 +2,9 @@ package kademlia
 
 import (
 	"context"
-	"net"
-	"log"
-
 	"google.golang.org/grpc"
+	"log"
+	"net"
 )
 
 const (
@@ -23,6 +22,7 @@ func NewKademliaServer(routingTable *RoutingTable) *kademliaServer {
 	return ks
 }
 
+// `FIND NODE` RPC
 func (s *kademliaServer) FindNode(ctx context.Context, target *Target) (*Neighbors, error) {
 	hashedTargetID := ConvertPeerID(target.GetTargetId())
 
@@ -56,7 +56,7 @@ func (s *kademliaServer) FindNode(ctx context.Context, target *Target) (*Neighbo
 func (s *kademliaServer) Start(kadPort string){
 	lis, err := net.Listen("tcp", ":"+kadPort)
 	if err != nil {
-		log.Fatal("fail to listen:  %v", err)
+		log.Fatal(err)
 	}
 
 	rpcServer := grpc.NewServer()
@@ -64,6 +64,6 @@ func (s *kademliaServer) Start(kadPort string){
 
 	err = rpcServer.Serve(lis)
 	if err != nil {
-		log.Fatal(" Cannot start kademlia rpc server: %v", err)
+		log.Fatal(err)
 	}
 }

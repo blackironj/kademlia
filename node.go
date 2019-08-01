@@ -7,7 +7,6 @@ import (
 
 const (
 	MaxTryConnCount            = 3
-	NodeFailedConnsBeforeStale = 2
 )
 
 type Node struct {
@@ -34,6 +33,8 @@ func NewNode(id string, ip string, kadPort string, servPort string) Node {
 		FailedTryConnCount: 0,
 	}
 	n.HashedID = ConvertPeerID(n.ID)
+	n.makeConnection()
+
 	return n
 }
 
@@ -48,6 +49,7 @@ func (n *Node) makeConnection() {
 
 func (n *Node) IsAlive() bool {
 	if MaxTryConnCount <= n.FailedTryConnCount {
+		n.Conn.Close()
 		return false
 	}
 
@@ -57,10 +59,8 @@ func (n *Node) IsAlive() bool {
 		return true
 	} else if connState == connectivity.Connecting {
 		n.FailedTryConnCount++
+		return n.IsAlive()
 	}
+	n.Conn.Close()
 	return false
-}
-
-func (n *Node) IsStale() bool {
-	return NodeFailedConnsBeforeStale == n.FailedReqCount
 }
