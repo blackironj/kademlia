@@ -55,7 +55,8 @@ func (b *Bucket) Remove(n Node) bool {
 func (b *Bucket) RemoveDeadNodes() {
 	var next *list.Element
 	for e := b.list.Front(); e != nil; e = next {
-		if !e.Value.(Node).IsAlive() {
+		node := e.Value.(Node)
+		if !node.IsAlive() {
 			next = e.Next()
 			b.list.Remove(e)
 		} else {

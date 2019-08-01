@@ -10,7 +10,7 @@ import (
 
 const (
 	ParallelismAlpha      = 3
-	ReqFindNodeDeadline   = 500 * time.Millisecond
+	ReqFindNodeDeadline   = 1 * time.Second
 	RefreshBucketInterval = 5 * time.Minute
 )
 
@@ -67,7 +67,11 @@ func (s *kademliaNet) Start(kadPort string) {
 	rpcServer := grpc.NewServer()
 	RegisterKademliaServiceServer(rpcServer, s)
 
-	go s.RefreshBuckets()
+	go func() {
+		for range s.bucketRefreshTicker.C {
+			s.RefreshBuckets()
+		}
+	}()
 
 	err = rpcServer.Serve(lis)
 	if err != nil {
@@ -109,12 +113,10 @@ func (s *kademliaNet) ReqFindNeighborsQuery() []Node {
 }
 
 func (s *kademliaNet) RefreshBuckets() {
-	for range s.bucketRefreshTicker.C {
-		s.table.RemoveDeadNodes()
-		foundNode := s.ReqFindNeighborsQuery()
+	s.table.RemoveDeadNodes()
+	foundNode := s.ReqFindNeighborsQuery()
 
-		for _, n := range foundNode {
-			s.table.Update(n)
-		}
+	for _, n := range foundNode {
+		s.table.Update(n)
 	}
 }
