@@ -10,7 +10,10 @@ import (
 )
 
 const (
-	selfID = "test-id"
+	selfID       = "test-id"
+	selfIP       = "127.0.0.1"
+	selfKadPort  = "50001"
+	selfServPort = "50000"
 )
 
 // Test basic features of the bucket struct
@@ -86,7 +89,7 @@ func TestBucket(t *testing.T) {
 func TestTableCallbacks(t *testing.T) {
 
 	localID := selfID
-	rt := NewRoutingTable(10, localID)
+	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
 
 	peers := genRandomNode(100)
 
@@ -128,7 +131,7 @@ func TestTableCallbacks(t *testing.T) {
 // Right now, this just makes sure that it doesnt hang or crash
 func TestTableUpdate(t *testing.T) {
 	localID := selfID
-	rt := NewRoutingTable(10, localID)
+	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
 
 	peers := genRandomNode(100)
 	// Testing Update
@@ -148,7 +151,7 @@ func TestTableUpdate(t *testing.T) {
 func TestTableFind(t *testing.T) {
 	localID := selfID
 
-	rt := NewRoutingTable(10, localID)
+	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
 
 	peers := genRandomNode(100)
 	for i := 0; i < 5; i++ {
@@ -165,7 +168,7 @@ func TestTableFind(t *testing.T) {
 func TestTableFindMultiple(t *testing.T) {
 	localID := selfID
 
-	rt := NewRoutingTable(20, localID)
+	rt := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
 
 	peers := genRandomNode(100)
 	for i := 0; i < 25; i++ {
@@ -186,7 +189,7 @@ func TestTableFindMultiple(t *testing.T) {
 func TestTableMultithreaded(t *testing.T) {
 	localID := selfID
 
-	tab := NewRoutingTable(20, localID)
+	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
 	peers := genRandomNode(500)
 
 	done := make(chan struct{})
@@ -222,7 +225,7 @@ func BenchmarkUpdates(b *testing.B) {
 	b.StopTimer()
 	localID := selfID
 
-	tab := NewRoutingTable(20, localID)
+	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
 
 	num := b.N
 
@@ -240,7 +243,7 @@ func BenchmarkFinds(b *testing.B) {
 
 	num := b.N
 
-	tab := NewRoutingTable(20, localID)
+	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
 
 	peers := genRandomNode(num)
 	for i := 0; i < num; i++ {

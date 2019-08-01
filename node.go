@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MaxTryConnCount            = 3
+	MaxTryConnCount = 3
 )
 
 type Node struct {
