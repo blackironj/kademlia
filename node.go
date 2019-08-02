@@ -45,6 +45,10 @@ func (n *Node) makeConnection() {
 }
 
 func (n *Node) IsAlive() bool {
+	if n.Conn == nil {
+		return false
+	}
+
 	if MaxTryConnCount <= n.FailedTryConnCount {
 		n.Conn.Close()
 		return false

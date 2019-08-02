@@ -2,10 +2,11 @@ package kademlia
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"time"
+
+	"google.golang.org/grpc"
 )
 
 const (
