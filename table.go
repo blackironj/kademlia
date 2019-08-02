@@ -68,6 +68,7 @@ func (rt *RoutingTable) Update(n Node) (err error) {
 
 	// We have enough space in the bucket (whether spawned or grouped).
 	if bucket.Len() < rt.bucketsize {
+		n.makeConnection()
 		bucket.PushFront(n)
 		rt.PeerAdded(n.ID)
 		return nil
@@ -86,6 +87,7 @@ func (rt *RoutingTable) Update(n Node) (err error) {
 			// if after all the unfolding, we're unable to find room for this peer, scrap it.
 			return ErrPeerRejectedNoCapacity
 		}
+		n.makeConnection()
 		bucket.PushFront(n)
 		rt.PeerAdded(n.ID)
 		return nil
@@ -108,6 +110,9 @@ func (rt *RoutingTable) Remove(n Node) {
 	}
 
 	bucket := rt.Buckets[bucketID]
+	if n.Conn != nil {
+		n.Conn.Close()
+	}
 	if bucket.Remove(n) {
 		rt.PeerRemoved(n.ID)
 	}

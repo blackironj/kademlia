@@ -58,6 +58,7 @@ func (b *Bucket) RemoveDeadNodes() {
 		node := e.Value.(Node)
 		if !node.IsAlive() {
 			next = e.Next()
+			node.Conn.Close()
 			b.list.Remove(e)
 		} else {
 			next = e.Next()

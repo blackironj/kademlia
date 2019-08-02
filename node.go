@@ -31,7 +31,6 @@ func NewNode(id string, ip string, kadPort string, servPort string) Node {
 		FailedTryConnCount: 0,
 	}
 	n.HashedID = ConvertPeerID(n.ID)
-	n.makeConnection()
 
 	return n
 }

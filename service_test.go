@@ -2,6 +2,7 @@ package kademlia
 
 import (
 	"testing"
+	"time"
 )
 
 func TestKademliaNet_RefreshBuckets(t *testing.T) {
@@ -22,7 +23,7 @@ func TestKademliaNet_RefreshBuckets(t *testing.T) {
 
 func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 	rtFirst := NewRoutingTable(20, selfID, selfIP, selfKadPort, selfServPort)
-	nodes := genRandomNode(1000)
+	nodes := genRandomNode(100)
 
 	for _, node := range nodes {
 		rtFirst.Update(node)
@@ -31,8 +32,10 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 	kadNetFirst := NewKademliaNet(rtFirst)
 	go kadNetFirst.Start(selfKadPort)
 
+	time.Sleep(time.Second * 2)
+
 	firstNode := NewNode(selfID, selfIP, selfKadPort, selfServPort)
-	rtTest := NewRoutingTable(20, selfID+"test", selfIP, selfKadPort+"0", selfServPort + "0")
+	rtTest := NewRoutingTable(20, testID, selfIP, testKadPort, testServPort)
 	rtTest.Update(firstNode)
 
 	kadNetTest := NewKademliaNet(rtTest)
