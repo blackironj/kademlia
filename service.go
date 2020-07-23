@@ -2,10 +2,10 @@ package kademlia
 
 import (
 	"context"
-	"log"
 	"net"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -38,8 +38,9 @@ func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, err
 
 	sender := NewNode(senderID, senderIP, senderKadPort)
 
-	s.table.Update(sender)
-
+	if err := s.table.Update(sender); err != nil {
+		log.Debug(err)
+	}
 	nodes := s.table.NearestPeers(hashedTargetID, ParallelismAlpha)
 
 	var neighbors []*NodeInfo
@@ -62,7 +63,6 @@ func (s *kademliaNet) Start(kadPort string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	rpcServer := grpc.NewServer()
 	RegisterKademliaServiceServer(rpcServer, s)
 
@@ -98,10 +98,13 @@ func (s *kademliaNet) ReqFindNeighborsQuery(targetID string) []Node {
 
 			res, err := client.FindNode(ctx, target)
 			if err != nil {
-				log.Fatal(err)
+				log.Debug(err)
 			}
 
 			for _, info := range res.GetNodes() {
+				if info.Id == s.table.selfID {
+					continue
+				}
 				foundNode := NewNode(info.Id, info.Ip, info.Port)
 				nodes = append(nodes, foundNode)
 			}
