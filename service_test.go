@@ -40,7 +40,7 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 
 	kadNetTest := NewKademliaNet(rtTest)
 
-	foundNodes := kadNetTest.ReqFindNeighborsQuery()
+	foundNodes := kadNetTest.ReqFindNeighborsQuery(kadNetTest.table.selfID)
 
 	if len(foundNodes) == 0 {
 		t.Fatal("should have at least one node")

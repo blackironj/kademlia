@@ -78,11 +78,11 @@ func (s *kademliaNet) Start(kadPort string) {
 	}
 }
 
-func (s *kademliaNet) ReqFindNeighborsQuery() []Node {
+func (s *kademliaNet) ReqFindNeighborsQuery(targetID string) []Node {
 	var nodes []Node
 
 	target := &Target{
-		TargetId: s.table.selfID,
+		TargetId: targetID,
 		Sender: &NodeInfo{
 			Id:   s.table.selfID,
 			Ip:   s.table.selfIP,
@@ -114,7 +114,7 @@ func (s *kademliaNet) ReqFindNeighborsQuery() []Node {
 
 func (s *kademliaNet) RefreshBuckets() {
 	s.table.RemoveDeadNodes()
-	foundNode := s.ReqFindNeighborsQuery()
+	foundNode := s.ReqFindNeighborsQuery(s.table.selfID)
 
 	for _, n := range foundNode {
 		s.table.Update(n)
