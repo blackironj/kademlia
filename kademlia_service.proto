@@ -3,23 +3,19 @@ syntax = "proto3";
 package kademlia;
 
 service KademliaService {
-    rpc FindNode (Target) returns (Neighbors) {}
+    rpc FindNode (Target) returns (Nodes) {}
 }
 
 message Target {
     string target_id = 1;
-    string sender_id = 2;
-    string sender_ip = 3;
-    string sender_kad_port = 4;
-    string sender_serv_port = 5;
+    NodeInfo sender = 2;
 }
-message Neighbors {
-    repeated NeighborInfo neighbors = 1;
+message Nodes {
+    repeated NodeInfo nodes = 1;
 }
 
-message NeighborInfo {
+message NodeInfo {
     string id = 1;
     string ip = 2;
-    string kad_port = 3;
-    string serv_port = 4;
+    string port = 3;
 }
