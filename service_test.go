@@ -34,7 +34,7 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	firstNode := NewNode(selfID, selfIP, selfKadPort, selfServPort)
+	firstNode := NewNode(selfID, selfIP, selfKadPort)
 	rtTest := NewRoutingTable(20, testID, selfIP, testKadPort, testServPort)
 	rtTest.Update(firstNode)
 

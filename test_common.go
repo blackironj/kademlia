@@ -1,10 +1,11 @@
 package kademlia
 
 import (
-	"github.com/btcsuite/btcutil/base58"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/btcsuite/btcutil/base58"
 )
 
 const (
@@ -36,10 +37,7 @@ func genRandomNode(num int) []Node {
 		kadPortNum := 9000 + ranGen.Intn(60000)
 		kadPort := strconv.Itoa(kadPortNum)
 
-		servPortNum := 9000 + ranGen.Intn(60000)
-		servPort := strconv.Itoa(servPortNum)
-
-		peers[i] = NewNode(ip+":"+kadPort, ip, kadPort, servPort)
+		peers[i] = NewNode(ip+":"+kadPort, ip, kadPort)
 	}
 
 	return peers

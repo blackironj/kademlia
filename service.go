@@ -29,33 +29,31 @@ func NewKademliaNet(routingTable *RoutingTable) *kademliaNet {
 }
 
 // `FIND NODE` RPC
-func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Neighbors, error) {
+func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, error) {
 	hashedTargetID := ConvertPeerID(target.GetTargetId())
 
-	senderID := target.GetSenderId()
-	senderIP := target.GetSenderIp()
-	senderKadPort := target.GetSenderKadPort()
-	senderServPort := target.GetSenderServPort()
+	senderID := target.Sender.GetId()
+	senderIP := target.Sender.GetIp()
+	senderKadPort := target.Sender.GetPort()
 
-	sender := NewNode(senderID, senderIP, senderKadPort, senderServPort)
+	sender := NewNode(senderID, senderIP, senderKadPort)
 
 	s.table.Update(sender)
 
 	nodes := s.table.NearestPeers(hashedTargetID, ParallelismAlpha)
 
-	var neighbors []*NeighborInfo
+	var neighbors []*NodeInfo
 
 	for _, n := range nodes {
-		neighbor := &NeighborInfo{
-			Id:       n.ID,
-			Ip:       n.IP,
-			KadPort:  n.KademliaPort,
-			ServPort: n.ServicePort,
+		neighbor := &NodeInfo{
+			Id:   n.ID,
+			Ip:   n.IP,
+			Port: n.Port,
 		}
 		neighbors = append(neighbors, neighbor)
 	}
-	return &Neighbors{
-		Neighbors: neighbors,
+	return &Nodes{
+		Nodes: neighbors,
 	}, nil
 }
 
@@ -84,11 +82,12 @@ func (s *kademliaNet) ReqFindNeighborsQuery() []Node {
 	var nodes []Node
 
 	target := &Target{
-		TargetId:       s.table.selfID,
-		SenderId:       s.table.selfID,
-		SenderIp:       s.table.selfIP,
-		SenderKadPort:  s.table.selfKadPort,
-		SenderServPort: s.table.selfServPort,
+		TargetId: s.table.selfID,
+		Sender: &NodeInfo{
+			Id:   s.table.selfID,
+			Ip:   s.table.selfIP,
+			Port: s.table.selfPort,
+		},
 	}
 
 	for _, bucket := range s.table.Buckets {
@@ -102,8 +101,8 @@ func (s *kademliaNet) ReqFindNeighborsQuery() []Node {
 				log.Fatal(err)
 			}
 
-			for _, info := range res.GetNeighbors() {
-				foundNode := NewNode(info.Id, info.Ip, info.KadPort, info.ServPort)
+			for _, info := range res.GetNodes() {
+				foundNode := NewNode(info.Id, info.Ip, info.Port)
 				nodes = append(nodes, foundNode)
 			}
 			cancel()

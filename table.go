@@ -14,8 +14,7 @@ type RoutingTable struct {
 	selfID       string
 	hashedSelfID []byte
 	selfIP       string
-	selfKadPort  string
-	selfServPort string
+	selfPort     string
 
 	// Blanket lock, refine later for better performance
 	tabLock sync.RWMutex
@@ -29,16 +28,15 @@ type RoutingTable struct {
 }
 
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
-func NewRoutingTable(bucketsize int, selfID string, selfIP string, selfKadPort string, selfServPort string) *RoutingTable {
+func NewRoutingTable(bucketsize int, selfID string, selfIP string, selfPort string, selfServPort string) *RoutingTable {
 	rt := &RoutingTable{
-		Buckets:      []*Bucket{newBucket()},
-		bucketsize:   bucketsize,
-		selfID:       selfID,
-		selfIP:       selfIP,
-		selfKadPort:  selfKadPort,
-		selfServPort: selfServPort,
-		PeerRemoved:  func(string) {},
-		PeerAdded:    func(string) {},
+		Buckets:     []*Bucket{newBucket()},
+		bucketsize:  bucketsize,
+		selfID:      selfID,
+		selfIP:      selfIP,
+		selfPort:    selfPort,
+		PeerRemoved: func(string) {},
+		PeerAdded:   func(string) {},
 	}
 
 	rt.hashedSelfID = ConvertPeerID(selfID)

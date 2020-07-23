@@ -5,29 +5,25 @@ import (
 	"google.golang.org/grpc/connectivity"
 )
 
-const (
-	MaxTryConnCount = 3
-)
+const MaxTryConnCount = 3
 
 type Node struct {
 	ID       string
 	HashedID []byte
 
-	IP           string
-	KademliaPort string
-	ServicePort  string
+	IP   string
+	Port string
 
 	Conn *grpc.ClientConn
 
 	FailedTryConnCount int32
 }
 
-func NewNode(id string, ip string, kadPort string, servPort string) Node {
+func NewNode(id string, ip string, port string) Node {
 	n := Node{
 		ID:                 id,
 		IP:                 ip,
-		KademliaPort:       kadPort,
-		ServicePort:        servPort,
+		Port:               port,
 		FailedTryConnCount: 0,
 	}
 	n.HashedID = ConvertPeerID(n.ID)
@@ -37,7 +33,7 @@ func NewNode(id string, ip string, kadPort string, servPort string) Node {
 
 func (n *Node) makeConnection() {
 	var err error
-	n.Conn, err = grpc.Dial(n.IP+":"+n.KademliaPort, grpc.WithInsecure())
+	n.Conn, err = grpc.Dial(n.IP+":"+n.Port, grpc.WithInsecure())
 
 	if err == nil {
 		n.Conn.GetState()
