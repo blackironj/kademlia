@@ -9,13 +9,12 @@ import (
 )
 
 const (
-	selfID       = "self-id"
-	selfIP       = "127.0.0.1"
-	selfKadPort  = "50051"
-	selfServPort = "50052"
-	testID       = "test-id"
-	testKadPort  = "50011"
-	testServPort = "50012"
+	selfID   = "self-id"
+	selfIP   = "127.0.0.1"
+	selfPort = "50051"
+
+	testID   = "test-id"
+	testPort = "50011"
 )
 
 // Test basic features of the bucket struct

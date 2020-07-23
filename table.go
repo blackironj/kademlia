@@ -28,7 +28,7 @@ type RoutingTable struct {
 }
 
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
-func NewRoutingTable(bucketsize int, selfID string, selfIP string, selfPort string, selfServPort string) *RoutingTable {
+func NewRoutingTable(bucketsize int, selfID string, selfIP string, selfPort string) *RoutingTable {
 	rt := &RoutingTable{
 		Buckets:     []*Bucket{newBucket()},
 		bucketsize:  bucketsize,

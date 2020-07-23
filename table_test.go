@@ -44,7 +44,7 @@ func TestBucket(t *testing.T) {
 func TestTableCallbacks(t *testing.T) {
 
 	localID := selfID
-	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
+	rt := NewRoutingTable(10, localID, selfIP, selfPort)
 
 	peers := genRandomNode(100)
 
@@ -86,7 +86,7 @@ func TestTableCallbacks(t *testing.T) {
 // Right now, this just makes sure that it doesnt hang or crash
 func TestTableUpdate(t *testing.T) {
 	localID := selfID
-	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
+	rt := NewRoutingTable(10, localID, selfIP, selfPort)
 
 	peers := genRandomNode(100)
 	// Testing Update
@@ -106,7 +106,7 @@ func TestTableUpdate(t *testing.T) {
 func TestTableFind(t *testing.T) {
 	localID := selfID
 
-	rt := NewRoutingTable(10, localID, selfIP, selfKadPort, selfServPort)
+	rt := NewRoutingTable(10, localID, selfIP, selfPort)
 
 	peers := genRandomNode(100)
 	for i := 0; i < 5; i++ {
@@ -123,7 +123,7 @@ func TestTableFind(t *testing.T) {
 func TestTableFindMultiple(t *testing.T) {
 	localID := selfID
 
-	rt := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
+	rt := NewRoutingTable(20, localID, selfIP, selfPort)
 
 	peers := genRandomNode(100)
 	for i := 0; i < 25; i++ {
@@ -144,7 +144,7 @@ func TestTableFindMultiple(t *testing.T) {
 func TestTableMultithreaded(t *testing.T) {
 	localID := selfID
 
-	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
+	tab := NewRoutingTable(20, localID, selfIP, selfPort)
 	peers := genRandomNode(500)
 
 	done := make(chan struct{})
@@ -180,7 +180,7 @@ func BenchmarkUpdates(b *testing.B) {
 	b.StopTimer()
 	localID := selfID
 
-	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
+	tab := NewRoutingTable(20, localID, selfIP, selfPort)
 
 	num := b.N
 
@@ -198,7 +198,7 @@ func BenchmarkFinds(b *testing.B) {
 
 	num := b.N
 
-	tab := NewRoutingTable(20, localID, selfIP, selfKadPort, selfServPort)
+	tab := NewRoutingTable(20, localID, selfIP, selfPort)
 
 	peers := genRandomNode(num)
 	for i := 0; i < num; i++ {
