@@ -27,19 +27,26 @@ type RoutingTable struct {
 	PeerAdded   func(string)
 }
 
+//Options for initialize routing table
+type Options struct {
+	BucketSize int
+	ID         string
+	IP         string
+	Port       string
+}
+
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
-func NewRoutingTable(bucketsize int, selfID string, selfIP string, selfPort string) *RoutingTable {
+func NewRoutingTable(options *Options) *RoutingTable {
 	rt := &RoutingTable{
 		Buckets:     []*Bucket{newBucket()},
-		bucketsize:  bucketsize,
-		selfID:      selfID,
-		selfIP:      selfIP,
-		selfPort:    selfPort,
+		bucketsize:  options.BucketSize,
+		selfID:      options.ID,
+		selfIP:      options.IP,
+		selfPort:    options.Port,
 		PeerRemoved: func(string) {},
 		PeerAdded:   func(string) {},
 	}
-
-	rt.hashedSelfID = ConvertPeerID(selfID)
+	rt.hashedSelfID = ConvertPeerID(myID)
 
 	return rt
 }

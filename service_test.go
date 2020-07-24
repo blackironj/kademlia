@@ -6,7 +6,14 @@ import (
 )
 
 func TestKademliaNet_RefreshBuckets(t *testing.T) {
-	rt := NewRoutingTable(20, selfID, selfIP, selfPort)
+
+	rt := NewRoutingTable(
+		&Options{
+			BucketSize: 20,
+			ID:         myID,
+			IP:         myIP,
+			Port:       myPort,
+		})
 	nodes := genRandomNode(1000)
 
 	for _, node := range nodes {
@@ -22,7 +29,13 @@ func TestKademliaNet_RefreshBuckets(t *testing.T) {
 }
 
 func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
-	rtFirst := NewRoutingTable(20, selfID, selfIP, selfPort)
+	rtFirst := NewRoutingTable(
+		&Options{
+			BucketSize: 20,
+			ID:         myID,
+			IP:         myIP,
+			Port:       myPort,
+		})
 	nodes := genRandomNode(100)
 
 	for _, node := range nodes {
@@ -30,12 +43,18 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 	}
 
 	kadNetFirst := NewKademliaNet(rtFirst)
-	go kadNetFirst.Start(selfPort)
+	go kadNetFirst.Start(myPort)
 
 	time.Sleep(time.Second * 2)
 
-	firstNode := NewNode(selfID, selfIP, selfPort)
-	rtTest := NewRoutingTable(20, testID, selfIP, testPort)
+	firstNode := NewNode(myID, myIP, myPort)
+	rtTest := NewRoutingTable(
+		&Options{
+			BucketSize: 20,
+			ID:         testID,
+			IP:         myIP,
+			Port:       testPort,
+		})
 	rtTest.Update(firstNode)
 
 	kadNetTest := NewKademliaNet(rtTest)

@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	selfID   = "self-id"
-	selfIP   = "127.0.0.1"
-	selfPort = "50051"
+	myID   = "self-id"
+	myIP   = "127.0.0.1"
+	myPort = "50051"
 
 	testID   = "test-id"
 	testPort = "50011"

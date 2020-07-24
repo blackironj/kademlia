@@ -13,15 +13,14 @@ func TestBucket(t *testing.T) {
 		b.PushFront(peers[i])
 	}
 
-	localID := selfID
-	hashedLocalID := ConvertPeerID(localID)
+	hashedLocalID := ConvertPeerID(myID)
 
 	i := rand.Intn(len(peers))
 	if !b.Has(peers[i]) {
 		t.Errorf("Failed to find peer: %v", peers[i])
 	}
 
-	spl := b.Split(0, ConvertPeerID(localID))
+	spl := b.Split(0, ConvertPeerID(myID))
 	llist := b.list
 	for e := llist.Front(); e != nil; e = e.Next() {
 		p := ConvertPeerID(e.Value.(Node).ID)
@@ -42,9 +41,12 @@ func TestBucket(t *testing.T) {
 }
 
 func TestTableCallbacks(t *testing.T) {
-
-	localID := selfID
-	rt := NewRoutingTable(10, localID, selfIP, selfPort)
+	rt := NewRoutingTable(&Options{
+		BucketSize: 10,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	peers := genRandomNode(100)
 
@@ -85,8 +87,12 @@ func TestTableCallbacks(t *testing.T) {
 
 // Right now, this just makes sure that it doesnt hang or crash
 func TestTableUpdate(t *testing.T) {
-	localID := selfID
-	rt := NewRoutingTable(10, localID, selfIP, selfPort)
+	rt := NewRoutingTable(&Options{
+		BucketSize: 10,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	peers := genRandomNode(100)
 	// Testing Update
@@ -104,9 +110,12 @@ func TestTableUpdate(t *testing.T) {
 }
 
 func TestTableFind(t *testing.T) {
-	localID := selfID
-
-	rt := NewRoutingTable(10, localID, selfIP, selfPort)
+	rt := NewRoutingTable(&Options{
+		BucketSize: 10,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	peers := genRandomNode(100)
 	for i := 0; i < 5; i++ {
@@ -121,9 +130,12 @@ func TestTableFind(t *testing.T) {
 }
 
 func TestTableFindMultiple(t *testing.T) {
-	localID := selfID
-
-	rt := NewRoutingTable(20, localID, selfIP, selfPort)
+	rt := NewRoutingTable(&Options{
+		BucketSize: 20,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	peers := genRandomNode(100)
 	for i := 0; i < 25; i++ {
@@ -142,9 +154,12 @@ func TestTableFindMultiple(t *testing.T) {
 // test, increase the loop counter from 1000 to a much higher number
 // and set GOMAXPROCS above 1
 func TestTableMultithreaded(t *testing.T) {
-	localID := selfID
-
-	tab := NewRoutingTable(20, localID, selfIP, selfPort)
+	tab := NewRoutingTable(&Options{
+		BucketSize: 20,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 	peers := genRandomNode(500)
 
 	done := make(chan struct{})
@@ -178,9 +193,13 @@ func TestTableMultithreaded(t *testing.T) {
 
 func BenchmarkUpdates(b *testing.B) {
 	b.StopTimer()
-	localID := selfID
 
-	tab := NewRoutingTable(20, localID, selfIP, selfPort)
+	tab := NewRoutingTable(&Options{
+		BucketSize: 20,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	num := b.N
 
@@ -194,11 +213,14 @@ func BenchmarkUpdates(b *testing.B) {
 
 func BenchmarkFinds(b *testing.B) {
 	b.StopTimer()
-	localID := selfID
-
 	num := b.N
 
-	tab := NewRoutingTable(20, localID, selfIP, selfPort)
+	tab := NewRoutingTable(&Options{
+		BucketSize: 20,
+		ID:         myID,
+		IP:         myIP,
+		Port:       myPort,
+	})
 
 	peers := genRandomNode(num)
 	for i := 0; i < num; i++ {
