@@ -78,10 +78,30 @@ func (s *kademliaNet) Start(kadPort string) {
 	}
 }
 
-func (s *kademliaNet) ReqFindNeighborsQuery(targetID string) []Node {
+func (s *kademliaNet) ReqFindNodesFromSpecific(dest Node, targetID string) []Node {
+	target := s.genTargetMsg(targetID)
+
+	return s.reqFindNodes(dest, target)
+}
+
+func (s *kademliaNet) ReqFindNodesFromRandom(targetID string) []Node {
 	var nodes []Node
 
-	target := &Target{
+	target := s.genTargetMsg(targetID)
+
+	for _, bucket := range s.table.Buckets {
+		elem := bucket.list.Front()
+		if elem != nil {
+			recentlySeenNode := elem.Value.(Node)
+			foundNodes := s.reqFindNodes(recentlySeenNode, target)
+			nodes = append(nodes, foundNodes...)
+		}
+	}
+	return nodes
+}
+
+func (s *kademliaNet) genTargetMsg(targetID string) *Target {
+	return &Target{
 		TargetId: targetID,
 		Sender: &NodeInfo{
 			Id:   s.table.selfID,
@@ -89,35 +109,36 @@ func (s *kademliaNet) ReqFindNeighborsQuery(targetID string) []Node {
 			Port: s.table.selfPort,
 		},
 	}
+}
 
-	for _, bucket := range s.table.Buckets {
-		recentlySeenNode := bucket.list.Front()
-		if recentlySeenNode != nil {
-			client := NewKademliaServiceClient(recentlySeenNode.Value.(Node).Conn)
-			ctx, cancel := context.WithTimeout(context.Background(), ReqFindNodeDeadline)
+func (s *kademliaNet) reqFindNodes(dest Node, target *Target) []Node {
+	dest.makeConnection()
+	client := NewKademliaServiceClient(dest.Conn)
+	ctx, cancel := context.WithTimeout(context.Background(), ReqFindNodeDeadline)
 
-			res, err := client.FindNode(ctx, target)
-			if err != nil {
-				log.Debug(err)
-			}
-
-			for _, info := range res.GetNodes() {
-				if info.Id == s.table.selfID {
-					continue
-				}
-				foundNode := NewNode(info.Id, info.Ip, info.Port)
-				nodes = append(nodes, foundNode)
-			}
-			cancel()
-		}
+	res, err := client.FindNode(ctx, target)
+	if err != nil {
+		log.Debug(err)
+		cancel()
+		return []Node{}
 	}
 
+	nodes := make([]Node, 0, 10)
+
+	for _, info := range res.GetNodes() {
+		if info.Id == s.table.selfID {
+			continue
+		}
+		foundNode := NewNode(info.Id, info.Ip, info.Port)
+		nodes = append(nodes, foundNode)
+	}
+	cancel()
 	return nodes
 }
 
 func (s *kademliaNet) RefreshBuckets() {
 	s.table.RemoveDeadNodes()
-	foundNode := s.ReqFindNeighborsQuery(s.table.selfID)
+	foundNode := s.ReqFindNodesFromRandom(s.table.selfID)
 
 	for _, n := range foundNode {
 		s.table.Update(n)

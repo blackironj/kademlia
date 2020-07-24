@@ -32,6 +32,10 @@ func NewNode(id string, ip string, port string) Node {
 }
 
 func (n *Node) makeConnection() {
+	if n.Conn != nil {
+		return
+	}
+
 	var err error
 	n.Conn, err = grpc.Dial(n.IP+":"+n.Port, grpc.WithInsecure())
 
