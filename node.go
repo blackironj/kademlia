@@ -19,7 +19,7 @@ type Node struct {
 	FailedTryConnCount int32
 }
 
-func NewNode(id string, ip string, port string) Node {
+func NewNode(id, ip, port string) Node {
 	n := Node{
 		ID:                 id,
 		IP:                 ip,

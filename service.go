@@ -28,6 +28,23 @@ func NewKademliaNet(routingTable *RoutingTable) *kademliaNet {
 	return ks
 }
 
+func (s *kademliaNet) Bootstrap(bootstrapNodes []Node) {
+	for _, bootNode := range bootstrapNodes {
+		if err := s.table.Update(bootNode); err != nil {
+			log.Debug(err)
+			continue
+		}
+
+		neighborNodes := s.ReqFindNodesFromSpecific(bootNode, s.table.selfID)
+		for _, neighbor := range neighborNodes {
+			if err := s.table.Update(neighbor); err != nil {
+				log.Debug(err)
+				continue
+			}
+		}
+	}
+}
+
 func (s *kademliaNet) Start(kadPort string) {
 	lis, err := net.Listen("tcp", ":"+kadPort)
 	if err != nil {
