@@ -28,36 +28,6 @@ func NewKademliaNet(routingTable *RoutingTable) *kademliaNet {
 	return ks
 }
 
-// `FIND NODE` RPC
-func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, error) {
-	hashedTargetID := ConvertPeerID(target.GetTargetId())
-
-	senderID := target.Sender.GetId()
-	senderIP := target.Sender.GetIp()
-	senderKadPort := target.Sender.GetPort()
-
-	sender := NewNode(senderID, senderIP, senderKadPort)
-
-	if err := s.table.Update(sender); err != nil {
-		log.Debug(err)
-	}
-	nodes := s.table.NearestPeers(hashedTargetID, ParallelismAlpha)
-
-	var neighbors []*NodeInfo
-
-	for _, n := range nodes {
-		neighbor := &NodeInfo{
-			Id:   n.ID,
-			Ip:   n.IP,
-			Port: n.Port,
-		}
-		neighbors = append(neighbors, neighbor)
-	}
-	return &Nodes{
-		Nodes: neighbors,
-	}, nil
-}
-
 func (s *kademliaNet) Start(kadPort string) {
 	lis, err := net.Listen("tcp", ":"+kadPort)
 	if err != nil {
@@ -143,4 +113,34 @@ func (s *kademliaNet) RefreshBuckets() {
 	for _, n := range foundNode {
 		s.table.Update(n)
 	}
+}
+
+// `FIND NODE` RPC
+func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, error) {
+	hashedTargetID := ConvertPeerID(target.GetTargetId())
+
+	senderID := target.Sender.GetId()
+	senderIP := target.Sender.GetIp()
+	senderKadPort := target.Sender.GetPort()
+
+	sender := NewNode(senderID, senderIP, senderKadPort)
+
+	if err := s.table.Update(sender); err != nil {
+		log.Debug(err)
+	}
+	nodes := s.table.NearestPeers(hashedTargetID, ParallelismAlpha)
+
+	var neighbors []*NodeInfo
+
+	for _, n := range nodes {
+		neighbor := &NodeInfo{
+			Id:   n.ID,
+			Ip:   n.IP,
+			Port: n.Port,
+		}
+		neighbors = append(neighbors, neighbor)
+	}
+	return &Nodes{
+		Nodes: neighbors,
+	}, nil
 }
