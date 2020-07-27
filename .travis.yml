@@ -20,5 +20,6 @@ cache:
     - /home/travis/.cache/go-build
 
 script:
+  - go build cmd/main.go
   - go test -v -race
   - go test -bench=.

@@ -45,8 +45,8 @@ func (s *kademliaNet) Bootstrap(bootstrapNodes []Node) {
 	}
 }
 
-func (s *kademliaNet) Start(kadPort string) {
-	lis, err := net.Listen("tcp", ":"+kadPort)
+func (s *kademliaNet) Start() {
+	lis, err := net.Listen("tcp", ":"+s.table.selfPort)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -43,7 +43,7 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 	}
 
 	kadNetFirst := NewKademliaNet(rtFirst)
-	go kadNetFirst.Start(myPort)
+	go kadNetFirst.Start()
 
 	time.Sleep(time.Second * 2)
 

@@ -98,4 +98,8 @@ modules.xml
 # Ignore all local history of files
 .history
 
+# Ignore executable file
+main
+main.exe
+
 # End of https://www.gitignore.io/api/jetbrains+all,visualstudiocode
