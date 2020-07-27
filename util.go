@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math/bits"
 
+	"crypto/rand"
+
 	"github.com/minio/sha256-simd"
 )
 
@@ -36,4 +38,13 @@ func zeroPrefixLen(hashedID []byte) int {
 		}
 	}
 	return len(hashedID) * 8
+}
+
+func GenerateRandBytes(n int) (string, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
