@@ -3,6 +3,8 @@ package kademlia
 import (
 	"errors"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var ErrPeerRejectedHighLatency = errors.New("peer rejected; latency too high")
@@ -37,6 +39,14 @@ type Options struct {
 
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
 func NewRoutingTable(options *Options) *RoutingTable {
+	if options.IP == "" {
+		myIP, err := GetMyIP()
+		if err != nil {
+			log.Fatal(err)
+		}
+		options.IP = myIP
+	}
+
 	rt := &RoutingTable{
 		Buckets:     []*Bucket{newBucket()},
 		bucketsize:  options.BucketSize,

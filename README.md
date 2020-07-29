@@ -17,15 +17,16 @@ func main() {
 		&kad.Options{
 			BucketSize: 10,
 			ID:         "your unique id",
-			IP:         "127.0.0.1", // your IP
-			Port:       "50051",     // your port number
+			IP:         "127.0.0.1",// your IP 
+			Port:       "50051",    // your port number
 		})
+	// if you don't enter a ip, it set a ip automatically
 
 	kadNet := kad.NewKademliaNet(routingTable)
 
     // if you do not want to bootrap. it's okay to skip this step
     // generate a bootstrap node using node kad.NewNode(id, ip, port)
-    bootstrapNodes := []kad.Node{}
+	bootstrapNodes := []kad.Node{}
 	kadNet.Bootstrap(bootstrapNodes)
 
 	kadNet.Start()
