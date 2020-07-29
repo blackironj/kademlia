@@ -2,7 +2,9 @@ package kademlia
 
 import (
 	"errors"
+	"io/ioutil"
 	"math/bits"
+	"net/http"
 
 	"crypto/rand"
 
@@ -47,4 +49,15 @@ func GenerateRandBytes(n int) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+func GetMyIP() (string, error) {
+	resp, err := http.Get("https://myexternalip.com/raw")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	content, _ := ioutil.ReadAll(resp.Body)
+
+	return string(content), nil
 }

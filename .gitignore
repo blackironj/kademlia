@@ -102,4 +102,7 @@ modules.xml
 main
 main.exe
 
+cmd/*
+!cmd/main.go
+
 # End of https://www.gitignore.io/api/jetbrains+all,visualstudiocode
