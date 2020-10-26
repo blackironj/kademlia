@@ -1,6 +1,8 @@
 # Kademlia-like
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/blackironj/kademlia/master/LICENSE)
-[![Build Status](https://travis-ci.org/blackironj/kademlia.svg?branch=master)](https://travis-ci.org/blackironj/kademlia)
+<p align="left">
+  <a href="https://github.com/blackironj/kademlia/actions"><img alt="GitHub Actions status" src="https://github.com/actions/setup-go/workflows/build-test/badge.svg"></a>
+</p>
 
 This is a Go implementation of a `Kademlia-like` dht using [grpc](https://github.com/grpc/grpc-go)
 
