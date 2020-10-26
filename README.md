@@ -20,7 +20,7 @@ func main() {
 			IP:         "127.0.0.1",// your IP 
 			Port:       "50051",    // your port number
 		})
-	// if you don't enter a ip, it set a ip automatically
+	// if you don't enter an ip, it set an ip automatically
 
 	kadNet := kad.NewKademliaNet(routingTable)
 
