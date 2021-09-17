@@ -13,9 +13,9 @@ type Bucket struct {
 }
 
 func newBucket() *Bucket {
-	b := new(Bucket)
-	b.list = list.New()
-	return b
+	return &Bucket{
+		list: list.New(),
+	}
 }
 
 func (b *Bucket) Nodes() []Node {
@@ -78,8 +78,8 @@ func (b *Bucket) MoveToFront(n Node) {
 
 func (b *Bucket) PushFront(n Node) {
 	b.lk.Lock()
+	defer b.lk.Unlock()
 	b.list.PushFront(n)
-	b.lk.Unlock()
 }
 
 func (b *Bucket) PopBack() Node {

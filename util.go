@@ -1,19 +1,17 @@
 package kademlia
 
 import (
-	"errors"
 	"io/ioutil"
 	"math/bits"
 	"net/http"
 
-	"crypto/rand"
-
+	"github.com/google/uuid"
 	"github.com/minio/sha256-simd"
 )
 
-// Returned if a routing table query returns no results. This is NOT expected
-// behaviour
-var ErrLookupFailure = errors.New("failed to find any peer in table")
+const (
+	_externalIPcheckerAddress = "https://myexternalip.com/raw"
+)
 
 func XOR(a, b []byte) []byte {
 	c := make([]byte, len(a))
@@ -24,16 +22,7 @@ func XOR(a, b []byte) []byte {
 }
 
 func CommonPrefixLen(a, b []byte) int {
-	return zeroPrefixLen(XOR(a, b))
-}
-
-// ConvertPeerID creates a DHT ID by hashing a Peer ID (Multihash)
-func ConvertPeerID(id string) []byte {
-	hash := sha256.Sum256([]byte(id))
-	return hash[:]
-}
-
-func zeroPrefixLen(hashedID []byte) int {
+	hashedID := XOR(a, b)
 	for i, b := range hashedID {
 		if b != 0 {
 			return i*8 + bits.LeadingZeros8(uint8(b))
@@ -42,17 +31,14 @@ func zeroPrefixLen(hashedID []byte) int {
 	return len(hashedID) * 8
 }
 
-func GenerateRandBytes(n int) (string, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
+// ConvertPeerID creates a DHT ID by hashing a Peer ID (Multihash)
+func ConvertPeerID(id string) []byte {
+	hash := sha256.Sum256([]byte(id))
+	return hash[:]
 }
 
 func GetMyIP() (string, error) {
-	resp, err := http.Get("https://myexternalip.com/raw")
+	resp, err := http.Get(_externalIPcheckerAddress)
 	if err != nil {
 		return "", err
 	}
@@ -60,4 +46,8 @@ func GetMyIP() (string, error) {
 	content, _ := ioutil.ReadAll(resp.Body)
 
 	return string(content), nil
+}
+
+func NewUUIDv4() string {
+	return uuid.NewString()
 }

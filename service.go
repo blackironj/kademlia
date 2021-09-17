@@ -103,14 +103,14 @@ func (s *kademliaNet) reqFindNodes(dest Node, target *Target) []Node {
 	client := NewKademliaServiceClient(dest.Conn)
 	ctx, cancel := context.WithTimeout(context.Background(), ReqFindNodeDeadline)
 
+	nodes := make([]Node, 0, 10)
+
 	res, err := client.FindNode(ctx, target)
 	if err != nil {
 		log.Debug(err)
 		cancel()
-		return []Node{}
+		return nodes
 	}
-
-	nodes := make([]Node, 0, 10)
 
 	for _, info := range res.GetNodes() {
 		if info.Id == s.table.selfID {
@@ -132,7 +132,6 @@ func (s *kademliaNet) RefreshBuckets() {
 	}
 }
 
-// `FIND NODE` RPC
 func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, error) {
 	hashedTargetID := ConvertPeerID(target.GetTargetId())
 

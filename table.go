@@ -7,16 +7,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ErrPeerRejectedHighLatency = errors.New("peer rejected; latency too high")
 var ErrPeerRejectedNoCapacity = errors.New("peer rejected; insufficient capacity")
+
+const (
+	_defaultBucketSize = 20
+)
 
 // RoutingTable defines the routing table.
 type RoutingTable struct {
 	// ID of the local peer
 	selfID       string
 	hashedSelfID []byte
-	selfIP       string
-	selfPort     string
+
+	selfIP   string
+	selfPort string
 
 	// Blanket lock, refine later for better performance
 	tabLock sync.RWMutex
@@ -31,10 +35,12 @@ type RoutingTable struct {
 
 //Options for initialize routing table
 type Options struct {
-	BucketSize int
-	ID         string
-	IP         string
-	Port       string
+	BucketSize  int
+	ID          string
+	IP          string
+	Port        string
+	PeerRemoved func(string)
+	PeerAdded   func(string)
 }
 
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
@@ -47,16 +53,25 @@ func NewRoutingTable(options *Options) *RoutingTable {
 		options.IP = myIP
 	}
 
+	if options.BucketSize == 0 {
+		options.BucketSize = _defaultBucketSize
+	}
+
+	if options.ID == "" {
+		options.ID = NewUUIDv4()
+	}
+
 	rt := &RoutingTable{
-		Buckets:     []*Bucket{newBucket()},
-		bucketsize:  options.BucketSize,
-		selfID:      options.ID,
-		selfIP:      options.IP,
-		selfPort:    options.Port,
+		Buckets:      []*Bucket{newBucket()},
+		bucketsize:   options.BucketSize,
+		selfID:       options.ID,
+		selfIP:       options.IP,
+		selfPort:     options.Port,
+		hashedSelfID: ConvertPeerID(options.ID),
+
 		PeerRemoved: func(string) {},
 		PeerAdded:   func(string) {},
 	}
-	rt.hashedSelfID = ConvertPeerID(myID)
 
 	return rt
 }

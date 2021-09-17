@@ -16,7 +16,7 @@ type Node struct {
 
 	Conn *grpc.ClientConn
 
-	FailedTryConnCount int32
+	FailedTryConnCount int
 }
 
 func NewNode(id, ip, port string) Node {

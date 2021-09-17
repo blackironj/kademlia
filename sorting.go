@@ -23,8 +23,8 @@ func (pds *peerDistanceSorter) Swap(a, b int) {
 	pds.peers[a], pds.peers[b] = pds.peers[b], pds.peers[a]
 }
 func (pds *peerDistanceSorter) Less(a, b int) bool {
-	first := new(big.Int)
-	second := new(big.Int)
+	first := &big.Int{}
+	second := &big.Int{}
 
 	first.SetBytes(pds.peers[a].distance)
 	second.SetBytes(pds.peers[b].distance)
