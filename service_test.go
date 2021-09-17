@@ -3,6 +3,8 @@ package kademlia
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestKademliaNet_RefreshBuckets(t *testing.T) {
@@ -10,9 +12,6 @@ func TestKademliaNet_RefreshBuckets(t *testing.T) {
 	rt := NewRoutingTable(
 		&Options{
 			BucketSize: 20,
-			ID:         myID,
-			IP:         myIP,
-			Port:       myPort,
 		})
 	nodes := genRandomNode(1000)
 
@@ -23,18 +22,13 @@ func TestKademliaNet_RefreshBuckets(t *testing.T) {
 	kadNet := NewKademliaNet(rt)
 	kadNet.RefreshBuckets()
 
-	if rt.Size() > 0 {
-		t.Fatal("should not have peer")
-	}
+	assert.Equal(t, 0, rt.Size())
 }
 
 func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 	rtFirst := NewRoutingTable(
 		&Options{
 			BucketSize: 20,
-			ID:         myID,
-			IP:         myIP,
-			Port:       myPort,
 		})
 	nodes := genRandomNode(100)
 
@@ -47,12 +41,16 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	firstNode := NewNode(myID, myIP, myPort)
+	testID := NewUUIDv4()
+	testIP := "127.0.0.1"
+	testPort := "50051"
+
+	firstNode := NewNode(testID, testIP, testPort)
 	rtTest := NewRoutingTable(
 		&Options{
 			BucketSize: 20,
 			ID:         testID,
-			IP:         myIP,
+			IP:         testIP,
 			Port:       testPort,
 		})
 	rtTest.Update(firstNode)
@@ -61,7 +59,5 @@ func TestKademliaNet_ReqFindNeighborsQuery(t *testing.T) {
 
 	foundNodes := kadNetTest.ReqFindNodesFromRandom(kadNetTest.table.selfID)
 
-	if len(foundNodes) == 0 {
-		t.Fatal("should have at least one node")
-	}
+	assert.Greater(t, len(foundNodes), 0)
 }

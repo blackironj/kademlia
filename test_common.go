@@ -8,15 +8,6 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 )
 
-const (
-	myID   = "self-id"
-	myIP   = "127.0.0.1"
-	myPort = "50051"
-
-	testID   = "test-id"
-	testPort = "50011"
-)
-
 // Test basic features of the bucket struct
 func genRandomNode(num int) []Node {
 	seed := rand.NewSource(time.Now().UnixNano())

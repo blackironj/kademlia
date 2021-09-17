@@ -3,50 +3,42 @@ package kademlia
 import (
 	"math/rand"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBucket(t *testing.T) {
 	b := newBucket()
 
-	peers := genRandomNode(100)
+	testPeers := genRandomNode(100)
 	for i := 0; i < 100; i++ {
-		b.PushFront(peers[i])
+		b.PushFront(testPeers[i])
 	}
 
-	hashedLocalID := ConvertPeerID(myID)
+	testID := NewUUIDv4()
+	hashedTestID := ConvertPeerID(testID)
 
-	i := rand.Intn(len(peers))
-	if !b.Has(peers[i]) {
-		t.Errorf("Failed to find peer: %v", peers[i])
-	}
+	i := rand.Intn(len(testPeers))
+	assert.True(t, b.Has(testPeers[i]))
 
-	spl := b.Split(0, ConvertPeerID(myID))
+	spl := b.Split(0, ConvertPeerID(testID))
 	llist := b.list
 	for e := llist.Front(); e != nil; e = e.Next() {
 		p := ConvertPeerID(e.Value.(Node).ID)
-		cpl := CommonPrefixLen(p, hashedLocalID)
-		if cpl > 0 {
-			t.Fatalf("Split failed. found id with cpl > 0 in 0 bucket")
-		}
+		cpl := CommonPrefixLen(p, hashedTestID)
+		assert.Equal(t, 0, cpl)
 	}
 
 	rlist := spl.list
 	for e := rlist.Front(); e != nil; e = e.Next() {
 		p := ConvertPeerID(e.Value.(Node).ID)
-		cpl := CommonPrefixLen(p, hashedLocalID)
-		if cpl == 0 {
-			t.Fatalf("Split failed. found id with cpl == 0 in non 0 bucket")
-		}
+		cpl := CommonPrefixLen(p, hashedTestID)
+		assert.NotEqual(t, 0, cpl)
 	}
 }
 
 func TestTableCallbacks(t *testing.T) {
-	rt := NewRoutingTable(&Options{
-		BucketSize: 10,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
-	})
+	rt := NewRoutingTable(&Options{})
 
 	peers := genRandomNode(100)
 
@@ -59,14 +51,12 @@ func TestTableCallbacks(t *testing.T) {
 	}
 
 	rt.Update(peers[0])
-	if _, ok := pset[peers[0].ID]; !ok {
-		t.Fatal("should have this peer")
-	}
+	_, ok := pset[peers[0].ID]
+	assert.True(t, ok)
 
 	rt.Remove(peers[0])
-	if _, ok := pset[peers[0].ID]; ok {
-		t.Fatal("should not have this peer")
-	}
+	_, ok = pset[peers[0].ID]
+	assert.False(t, ok)
 
 	for _, p := range peers {
 		rt.Update(p)
@@ -74,24 +64,19 @@ func TestTableCallbacks(t *testing.T) {
 
 	out := rt.ListPeers()
 	for _, outp := range out {
-		if _, ok := pset[outp.ID]; !ok {
-			t.Fatal("should have peer in the peerset")
-		}
+		_, ok := pset[outp.ID]
+		assert.True(t, ok)
+
 		delete(pset, outp.ID)
 	}
 
-	if len(pset) > 0 {
-		t.Fatal("have peers in peerset that were not in the table", len(pset))
-	}
+	assert.Equal(t, 0, len(pset))
 }
 
 // Right now, this just makes sure that it doesnt hang or crash
 func TestTableUpdate(t *testing.T) {
 	rt := NewRoutingTable(&Options{
 		BucketSize: 10,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 
 	peers := genRandomNode(100)
@@ -103,18 +88,14 @@ func TestTableUpdate(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		id := ConvertPeerID(genRandomID())
 		ret := rt.NearestPeers(id, 5)
-		if len(ret) == 0 {
-			t.Fatal("Failed to find node near ID.")
-		}
+
+		assert.NotEqual(t, len(ret), 0)
 	}
 }
 
 func TestTableFind(t *testing.T) {
 	rt := NewRoutingTable(&Options{
 		BucketSize: 10,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 
 	peers := genRandomNode(100)
@@ -124,17 +105,13 @@ func TestTableFind(t *testing.T) {
 
 	t.Logf("Searching for peer: '%s'", peers[2].ID)
 	found := rt.NearestPeer(peers[2].HashedID)
-	if !(found.ID == peers[2].ID) {
-		t.Fatalf("Failed to lookup known node...")
-	}
+
+	assert.Equal(t, found.ID, peers[2].ID)
 }
 
 func TestTableFindMultiple(t *testing.T) {
 	rt := NewRoutingTable(&Options{
 		BucketSize: 20,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 
 	peers := genRandomNode(100)
@@ -145,9 +122,7 @@ func TestTableFindMultiple(t *testing.T) {
 	t.Logf("Searching for peer: '%s'", peers[2].ID)
 	found := rt.NearestPeers(peers[2].HashedID, 15)
 
-	if len(found) != 15 {
-		t.Fatalf("Got back different number of peers than we expected.")
-	}
+	assert.Equal(t, 15, len(found))
 }
 
 // Looks for race conditions in table operations. For a more 'certain'
@@ -156,9 +131,6 @@ func TestTableFindMultiple(t *testing.T) {
 func TestTableMultithreaded(t *testing.T) {
 	tab := NewRoutingTable(&Options{
 		BucketSize: 20,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 	peers := genRandomNode(500)
 
@@ -196,9 +168,6 @@ func BenchmarkUpdates(b *testing.B) {
 
 	tab := NewRoutingTable(&Options{
 		BucketSize: 20,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 
 	num := b.N
@@ -217,9 +186,6 @@ func BenchmarkFinds(b *testing.B) {
 
 	tab := NewRoutingTable(&Options{
 		BucketSize: 20,
-		ID:         myID,
-		IP:         myIP,
-		Port:       myPort,
 	})
 
 	peers := genRandomNode(num)

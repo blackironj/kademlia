@@ -11,6 +11,7 @@ var ErrPeerRejectedNoCapacity = errors.New("peer rejected; insufficient capacity
 
 const (
 	_defaultBucketSize = 20
+	_defaultPort       = "50051"
 )
 
 // RoutingTable defines the routing table.
@@ -51,6 +52,10 @@ func NewRoutingTable(options *Options) *RoutingTable {
 			log.Fatal(err)
 		}
 		options.IP = myIP
+	}
+
+	if options.Port == "" {
+		options.Port = _defaultPort
 	}
 
 	if options.BucketSize == 0 {
