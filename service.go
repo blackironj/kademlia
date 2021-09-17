@@ -10,20 +10,43 @@ import (
 )
 
 const (
-	ParallelismAlpha      = 3
-	ReqFindNodeDeadline   = 1 * time.Second
-	RefreshBucketInterval = 5 * time.Minute
+	_defaultParallelismAlpha      = 3
+	_defaultReqFindNodeDeadline   = 1 * time.Second
+	_defaultRefreshBucketInterval = 5 * time.Minute
 )
 
-type kademliaNet struct {
-	table               *RoutingTable
-	bucketRefreshTicker *time.Ticker
+type KademliaOpt struct {
+	ParallelismAlpha      int
+	ReqFindNodeDeadline   time.Duration
+	RefreshBucketInterval time.Duration
 }
 
-func NewKademliaNet(routingTable *RoutingTable) *kademliaNet {
+type kademliaNet struct {
+	table *RoutingTable
+
+	parallelismAlpha      int
+	reqFindNodeDeadline   time.Duration
+	refreshBucketInterval time.Duration
+}
+
+func NewKademliaNet(routingTable *RoutingTable, opt ...KademliaOpt) *kademliaNet {
 	ks := &kademliaNet{
-		table:               routingTable,
-		bucketRefreshTicker: time.NewTicker(RefreshBucketInterval),
+		table:                 routingTable,
+		parallelismAlpha:      _defaultParallelismAlpha,
+		reqFindNodeDeadline:   _defaultReqFindNodeDeadline,
+		refreshBucketInterval: _defaultRefreshBucketInterval,
+	}
+
+	if len(opt) != 0 {
+		if opt[0].ParallelismAlpha == 0 {
+			ks.parallelismAlpha = opt[0].ParallelismAlpha
+		}
+		if opt[0].ReqFindNodeDeadline != 0 {
+			ks.reqFindNodeDeadline = opt[0].ReqFindNodeDeadline
+		}
+		if opt[0].RefreshBucketInterval != 0 {
+			ks.refreshBucketInterval = opt[0].RefreshBucketInterval
+		}
 	}
 	return ks
 }
@@ -53,8 +76,10 @@ func (s *kademliaNet) Start() {
 	rpcServer := grpc.NewServer()
 	RegisterKademliaServiceServer(rpcServer, s)
 
+	refreshTicker := time.NewTicker(s.refreshBucketInterval)
+
 	go func() {
-		for range s.bucketRefreshTicker.C {
+		for range refreshTicker.C {
 			s.RefreshBuckets()
 		}
 	}()
@@ -101,7 +126,7 @@ func (s *kademliaNet) genTargetMsg(targetID string) *Target {
 func (s *kademliaNet) reqFindNodes(dest Node, target *Target) []Node {
 	dest.makeConnection()
 	client := NewKademliaServiceClient(dest.Conn)
-	ctx, cancel := context.WithTimeout(context.Background(), ReqFindNodeDeadline)
+	ctx, cancel := context.WithTimeout(context.Background(), s.reqFindNodeDeadline)
 
 	nodes := make([]Node, 0, 10)
 
@@ -144,7 +169,7 @@ func (s *kademliaNet) FindNode(ctx context.Context, target *Target) (*Nodes, err
 	if err := s.table.Update(sender); err != nil {
 		log.Debug(err)
 	}
-	nodes := s.table.NearestPeers(hashedTargetID, ParallelismAlpha)
+	nodes := s.table.NearestPeers(hashedTargetID, s.parallelismAlpha)
 
 	var neighbors []*NodeInfo
 
